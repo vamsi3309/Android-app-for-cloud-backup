@@ -30,12 +30,11 @@
         </activity>
         <activity
             android:name=".DataUpload"
-            android:launchMode="singleInstance"
-            android:parentActivityName=".DisplayMessage" />
+            android:launchMode="singleInstance" />
         <activity
             android:name=".DisplayMessage"
             android:launchMode="singleInstance"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".DataUpload" />
         <activity android:name=".DataDownload"></activity>
     </application>
 

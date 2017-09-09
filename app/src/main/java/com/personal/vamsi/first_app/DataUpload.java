@@ -19,8 +19,6 @@ import java.io.InputStream;
 import java.net.Socket;
 
 public class DataUpload extends AppCompatActivity implements Runnable{
-    public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
-
     public void run(){
 
     }
@@ -41,37 +39,16 @@ public class DataUpload extends AppCompatActivity implements Runnable{
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         final Intent data = intent;
-        final Intent temp_path = new Intent(this, DisplayMessage.class);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         new Thread(new Runnable() {
             public void run() {
                 try {
-                    String path=null;
                     Uri uri = data.getData();
-                    path = uri.getPath();
-                    Log.d("android_home",System.getProperty("user.home"));
-                    Log.v("Path",path);
-                    File file = new File(uri.toString());
-                    Log.v("File value", file.getName());
-                    File file2 = new File(file.getAbsolutePath());
-                    if(!file2.exists()) {
-                        throw new FileNotFoundException();
-                    }
-//                    if(!new File(path).exists()) throw new FileNotFoundException();
-//                    Log.d("PATH2",path);
-                    // if (new File(filePath).canRead()) {
-                    Cursor returnCursor =
-                            getContentResolver().query(uri, null, null, null, null);
+                    Cursor returnCursor = getContentResolver().query(uri, null, null, null, null);
                     returnCursor.moveToFirst();
                     int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                    data.putExtra("path",path);
                     data.putExtra("name",returnCursor.getString(nameIndex));
-                    Log.d("Location",path);
-                    Intent print_path = temp_path;
-                    print_path.putExtra(EXTRA_MESSAGE, path);
-                    print_path.putExtra("NAME",returnCursor.getString(nameIndex));
-                    startActivity(print_path);
                     startDataUpload(data);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -82,25 +59,22 @@ public class DataUpload extends AppCompatActivity implements Runnable{
 
     public void startDataUpload(Intent data){
         try {
-            Socket sercom = new Socket("172.21.187.24",8080);
+            Socket sercom = new Socket("10.2.58.250",8080);
             Intent print_path = data;
-            String path = print_path.getStringExtra("path");
             String file_name = print_path.getStringExtra("name");
-            Log.d("path  ",path);
-            File upload_file = new File(path);
-            if(!upload_file.exists()){throw new FileNotFoundException();}
             TextView textView = (TextView) findViewById(R.id.uploadView);
-            //textView.setText(path+"   File "+upload_file.exists());
             startActivity(print_path);
             DataOutputStream out = new DataOutputStream(sercom.getOutputStream());
             out.writeUTF(file_name);
-            FileInputStream file = new FileInputStream(upload_file);
-            byte[] bytes = new byte[124];
+            InputStream file = getContentResolver().openInputStream(print_path.getData());
+            byte[] bytes = new byte[1024];
             int limit;
             while((limit = file.read(bytes))>0){
-                Log.d("Inloop","      ");
                 out.write(bytes,0,limit);
             }
+            Intent disp_success = new Intent(this, DisplayMessage.class);
+            disp_success.putExtra("NAME",file_name);
+            startActivity(disp_success);
             file.close();
             out.close();
             sercom.close();
@@ -108,13 +82,5 @@ public class DataUpload extends AppCompatActivity implements Runnable{
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-    public String getRealPathFromURI(Uri contentUri) {
-        String[] proj = { MediaStore.Images.Media.DATA };
-        Cursor cursor = getContentResolver().query(contentUri, proj, null, null, null);
-        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        Log.d("coloumn"," "+column_index);
-        cursor.moveToFirst();
-        return cursor.getString(column_index);
     }
 }
