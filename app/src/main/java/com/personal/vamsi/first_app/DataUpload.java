@@ -98,7 +98,7 @@ public class DataUpload extends AppCompatActivity implements Runnable{
             byte[] bytes = new byte[124];
             int limit;
             while((limit = file.read(bytes))>0){
-                Log.d("Inloop"," ");
+                Log.d("Inloop","      ");
                 out.write(bytes,0,limit);
             }
             file.close();
