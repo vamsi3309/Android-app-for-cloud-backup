@@ -86,7 +86,7 @@ public class DataUpload extends AppCompatActivity implements Runnable{
             Intent print_path = data;
             String path = print_path.getStringExtra("path");
             String file_name = print_path.getStringExtra("name");
-            Log.d("path ",path);
+            Log.d("path     ",path);
             File upload_file = new File(path);
             if(!upload_file.exists()){throw new FileNotFoundException();}
             TextView textView = (TextView) findViewById(R.id.uploadView);
